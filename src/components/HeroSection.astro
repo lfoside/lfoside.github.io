@@ -121,8 +121,10 @@ const facts = [
 
       <!-- ПРАВАЯ КОЛОНКА: чертёж в «двойной» рамке + штамп допуска -->
       <div class="rise d3 relative">
-        <!-- внешний контур смещён вниз-влево: лист на кульмане -->
-        <div class="border border-paper/15 pb-5 pl-5">
+        <!-- внешний контур смещён вниз-влево: лист на кульмане.
+             pt-6/pt-8 — опускаем чертёж из-под HTML-штампа ±0,01 (он не
+             масштабируется и на любой ширине наезжал на подпись «180»). -->
+        <div class="border border-paper/15 pb-5 pl-5 pt-6 max-sm:pt-8">
           <div class="rounded-br-[2.5rem] border border-accent/35 bg-ink-2/50 p-3 sm:p-5">
             <svg
               viewBox="14 78 606 336"
