@@ -1,0 +1,45 @@
+---
+/**
+ * Кнопка-ссылка: рендерит <a>, если задан href, иначе <button>.
+ * Микро-взаимодействие против нейрослопа: лёгкий сдвиг + затемнение, 300 мс.
+ */
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'accent' | 'ghost';
+  type?: 'button' | 'submit';
+}
+
+const { href, variant = 'primary', type = 'button', ...rest } = Astro.props;
+
+const variants = {
+  primary: 'bg-accent text-ink hover:bg-accent-2',
+  accent: 'bg-accent-2 text-ink hover:brightness-105',
+  ghost: 'bg-transparent text-paper border border-paper/25 hover:border-accent-text hover:text-accent-text',
+} as const;
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class:list={[
+        'inline-block rounded-md px-5 py-2.5 font-medium transition-all duration-300 ease-in-out hover:-translate-y-0.5 active:translate-y-0',
+        variants[variant],
+      ]}
+      {...rest}
+    >
+      <slot />
+    </a>
+  ) : (
+    <button
+      type={type}
+      class:list={[
+        'inline-block rounded-md px-5 py-2.5 font-medium transition-all duration-300 ease-in-out hover:-translate-y-0.5 active:translate-y-0',
+        variants[variant],
+      ]}
+      {...rest}
+    >
+      <slot />
+    </button>
+  )
+}

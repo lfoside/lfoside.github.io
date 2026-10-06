@@ -1,0 +1,135 @@
+---
+/**
+ * Секция заявки — «07 / Заявка», живёт между FAQ и футером.
+ *
+ * Зачем она вообще есть: раньше четыре CTA — «Рассчитать стоимость» в hero,
+ * «Прислать чертёж» в услугах и «Оставить заявку» в строках аккордеона — вели
+ * в #contacts, то есть в пассивный список номера, почты и иконок. Ни один не
+ * отвечал на три вопроса, которые обычно и останавливают заказчика: что
+ * прислать, что вернётся назад и за сколько, и возьмутся ли за эскиз от руки.
+ *
+ * Мессенджеры равноправны: три одинаковые плитки, а не «главный канал +
+ * запасные». Порядок в data/site.ts — не приоритет: хозяин отвечает во всех
+ * троих одинаково, и иерархия вокруг WhatsApp была выдумана, а не измерена.
+ *
+ * Композиция — «бумажный лист на оранжевом мате». Раньше секция была сплошной
+ * оранжевой стеной: полностраничный кадр давал по полосе насыщенность 0,664
+ * против 0,195 на остальной странице, ~90 % всего акцентного цвета сайта и
+ * прыжок насыщенности на стыке с FAQ 0,620 — самый большой на странице.
+ * Переезд плиток с чёрной плашки на бумагу стену не сломал (насыщенность
+ * осталась та же): стеной был ФОН секции, а не плашка. Теперь содержимое
+ * лежит на светлом листе, оранжевый остаётся периферией-матом — центр, куда
+ * смотрит глаз, спокойный. Чередование держит сам мат: полоса не сливается ни
+ * с бумажным FAQ сверху, ни с чернильным футером снизу.
+ *
+ * Тон — tone-light, а не tone-accent: весь текст теперь на бумаге, и
+ * --color-accent-text должен быть тёмно-оранжевым #a63f18 (читается на
+ * бумаге), а не чернильным. На самом мате текста нет, поэтому ему тон всё
+ * равно.
+ *
+ * Мат полноэкранный по ширине, поэтому на очень широких мониторах оранжевые
+ * поля растут. Проверено кадрами 1440 и 2560. Если на 2560 оранжевого много
+ * — мат превращается в обнимающую лист рамку: секцию оставить paper, а лист
+ * обернуть в bg-accent с малым равномерным паддингом (правка одной строки).
+ *
+ * Формы нет: заявки принимаются звонком, письмом и в мессенджеры, сайт
+ * персональные данные не собирает (см. комментарий в data/site.ts). Вместо
+ * формы — ссылки, открывающиеся уже с шаблоном ТЗ.
+ */
+import { phone, email, messengers, requestTemplates } from '../data/site';
+import SectionHeading from './SectionHeading.astro';
+---
+
+<section id="request" class="tone-light bg-accent">
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+    <!-- Бумажный лист: всё содержимое живёт здесь, оранжевый только рамка -->
+    <div class="bg-paper px-5 py-9 text-ink sm:px-9 sm:py-11 lg:px-12" data-reveal>
+      <!-- Шапка: заголовок и условия приёма одной строкой -->
+      <div class="grid items-end gap-6 lg:grid-cols-[0.55fr_0.45fr] lg:gap-14">
+        <SectionHeading num="07" kicker="Заявка" title1="Пришлите чертёж" title2="или эскиз" tight />
+        <p class="max-w-md text-base leading-relaxed text-ink/80">
+          Чтобы посчитать за 1–3 дня, нужны четыре вещи: процесс, материал и
+          габариты, партия, нужный срок. Чертёж, эскиз от руки или сама деталь —
+          в любом виде.
+        </p>
+      </div>
+
+      <!-- Три равноправных мессенджера. Плитки чернильные: на бумаге они и
+          есть действие, а брендовые иконки-квадратики на тёмном читаются
+          лучше всего -->
+      <div class="mt-9 lg:mt-11">
+        <p class="font-display text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/70">
+          Написать в мессенджер
+        </p>
+        <ul class="mt-4 grid gap-3 sm:grid-cols-3">
+          {
+            messengers.map((m) => (
+              <li>
+                <a
+                  href={m.href}
+                  target="_blank"
+                  rel="noopener"
+                  class="group flex min-h-[4.5rem] items-center gap-3 bg-ink px-5 py-4 text-paper transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-ink-2"
+                >
+                  <img src={m.icon} alt="" width="36" height="36" class="size-9 shrink-0" loading="lazy" />
+                  <span class="font-display text-lg font-semibold uppercase leading-none tracking-[-0.01em]">
+                    {m.name}
+                  </span>
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="ml-auto size-4 shrink-0 text-paper/60 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M7 17 17 7M8 7h9v9" />
+                  </svg>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <!-- Честная оговорка: подстановка текста ТЗ работает в Telegram и
+             WhatsApp, у MAX документации на неё нет -->
+        <p class="mt-3 text-[13px] leading-relaxed text-ink/70">
+          В Telegram и WhatsApp чат откроется уже с текстом ТЗ — останется
+          вписать цифры и приложить фото чертежа.
+        </p>
+      </div>
+
+      <!-- Телефон и почта: те же каналы, просто без подстановки. Отделены
+           hairline, чтобы не выглядели четвёртой-пятой плиткой в столбик -->
+      <ul class="mt-8 grid gap-x-12 gap-y-3 border-t border-ink/10 pt-7 sm:grid-cols-2">
+        <li class="flex">
+          <a
+            href={phone.href}
+            class="inline-flex min-h-11 items-center gap-2 py-1 font-display text-lg leading-none font-semibold tracking-[-0.02em] transition-opacity duration-300 hover:underline lg:text-xl"
+          >
+            Позвонить <span class="whitespace-nowrap">{phone.label}</span>
+          </a>
+        </li>
+        <li class="flex">
+          <a
+            href={requestTemplates.email}
+            class="inline-flex min-h-11 items-center gap-2 py-1 font-display text-lg leading-none font-semibold tracking-[-0.02em] transition-opacity duration-300 hover:underline lg:text-xl"
+          >
+            Письмо с шаблоном ТЗ: <span class="whitespace-nowrap">{email.label}</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Условия работы: самая тихая строка листа -->
+      <p class="mt-8 flex flex-col gap-1.5 text-[13px] leading-relaxed text-ink/70 sm:flex-row sm:items-baseline sm:gap-5">
+        <span class="font-display text-xs font-semibold uppercase tracking-[0.14em] whitespace-nowrap text-ink/80">
+          Оплата и документы
+        </span>
+        <span>
+          Работаем с организациями и ИП: договор, счёт, только безналичный расчёт.
+        </span>
+      </p>
+    </div>
+  </div>
+</section>

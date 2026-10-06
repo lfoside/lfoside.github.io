@@ -1,0 +1,45 @@
+---
+/**
+ * Ключевой SEO-компонент проекта: разделяет семантический тег и визуальный вес.
+ *
+ *   as   — какой тег отдать поисковому роботу (h1…h6, p, div…)
+ *   size — как элемент выглядит визуально (hero/xl/lg/md/sm)
+ *
+ * Пример: крупная плашка УТП, которая НЕ является заголовком:
+ *   <Heading as="p" size="hero">10 лет опыта</Heading>
+ * Пример: SEO-заголовок, который по дизайну мелкий:
+ *   <Heading as="h2" size="sm">Условия работы</Heading>
+ */
+type Tag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'div' | 'span';
+type Size = 'display' | 'hero' | 'xl' | 'lg' | 'md' | 'sm';
+
+interface Props {
+  as?: Tag;
+  size?: Size;
+  class?: string;
+}
+
+const { as: Tag = 'h2', size = 'md', class: className, ...rest } = Astro.props;
+
+const sizeClasses: Record<Size, string> = {
+  // Дисплейные размеры в духе metapro: Oswald — узкий гротеск, поэтому
+  // трекинг мягче (-0.02em), чем был у широкого фолбэка: на сжатом кегле
+  // сильное отрицание сливает буквы. Регистр (uppercase) — решение секции,
+  // задаётся снаружи через class.
+  // display — единственный на страницу H1: крупнее секционных H2 (hero).
+  // Границы clamp подобраны замером 17-буквенного «МЕТАЛЛООБРАБОТКА»
+  // по 11 брейкпоинтам от 320 до 1440: строка не залезает за контейнер
+  // (93% колонки на 1440) и весь hero вместе с полосой фактов умещается
+  // в 900px высоты экрана — на 120px/0.9 он уже не влезал (103.9vh).
+  display: 'font-display text-[clamp(2.5rem,8.6vw,7rem)] leading-[0.88] font-bold tracking-[-0.02em]',
+  hero: 'font-display text-[2.6rem] leading-[0.92] font-bold tracking-[-0.02em] sm:text-[3.4rem] lg:text-[4.25rem]',
+  xl: 'font-display text-2xl leading-tight font-semibold tracking-[-0.01em] sm:text-3xl',
+  lg: 'font-display text-xl leading-snug font-semibold tracking-[-0.01em] sm:text-2xl',
+  md: 'text-lg font-semibold',
+  sm: 'text-base font-medium',
+};
+---
+
+<Tag class:list={[sizeClasses[size], className]} {...rest}>
+  <slot />
+</Tag>

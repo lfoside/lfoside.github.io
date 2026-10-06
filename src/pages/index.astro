@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroSection from '../components/HeroSection.astro';
+import AboutSection from '../components/AboutSection.astro';
+import ServicesSection from '../components/ServicesSection.astro';
+import StepsSection from '../components/StepsSection.astro';
+import GallerySection from '../components/GallerySection.astro';
+import FaqSection from '../components/FaqSection.astro';
+import RequestSection from '../components/RequestSection.astro';
+---
+
+<Layout
+  title="Металлообработка на заказ — токарно-фрезерные работы на ЧПУ | ТокаркаПРО"
+  description="Металлообработка на заказ в Москве и МО: токарные, фрезерные, сварочные и слесарные работы на ЧПУ. Штучное и серийное производство от 1 шт., точность ±0,01 мм, расчёт за 1–3 дня."
+>
+  <!-- 01 / НАЧАЛО — тёмная секция, содержит единственный на страницу h1 -->
+  <HeroSection />
+
+  <AboutSection />
+  <ServicesSection />
+  <StepsSection />
+  <GallerySection />
+  <FaqSection />
+
+  <!-- 07 / ЗАЯВКА — единственная акцентная полоса, замыкает все CTA страницы -->
+  <RequestSection />
+</Layout>

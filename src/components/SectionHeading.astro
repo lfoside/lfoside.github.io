@@ -1,0 +1,45 @@
+---
+/**
+ * Заголовок секции — трёхслойная механика из референса metapro:
+ *  1) маркер «NN / РУБРИКА» с hairline-линией (инженерная нумерация всех блоков);
+ *  2) H2 — uppercase, тесный трекинг (через Heading size="hero");
+ *  3) вторая строка в акцент-цвете — приём <em> из оригинала (без градиентов).
+ *
+ * Акцент здесь именно текстовый (--color-accent-text), а не брендовый:
+ * компонент живёт и на чернилах, и на бумаге, а яркий #e26439 на бумаге
+ * даёт 2,81:1 и не читается. Тон подставляет .tone-light на секции.
+ *
+ * Маркеры — русские, и это не перевод латинских подписей: рубрика называет
+ * раздел коротким существительным и НИКОГДА не повторяет слова H2, иначе
+ * две строки рядом читаются как одна и та же мысль дважды.
+ */
+import Heading from './Heading.astro';
+
+interface Props {
+  /** порядковый номер секции, например "02" */
+  num: string;
+  /** русская рубрика маркера, например "О НАС" (без повтора слов H2) */
+  kicker: string;
+  /** первая строка H2 */
+  title1: string;
+  /** вторая строка H2 — красится акцентом, точка добавляется автоматически */
+  title2: string;
+  /** без нижнего отступа — когда ритм задаёт родительская сетка (напр. «О компании») */
+  tight?: boolean;
+}
+
+const { num, kicker, title1, title2, tight = false } = Astro.props;
+---
+
+<div class:list={!tight && 'mb-12 sm:mb-16'}>
+  <p class="mb-7 flex items-center gap-4">
+    <span class="font-display text-[10px] font-semibold tracking-[0.2em] text-accent-text uppercase">
+      {num}&nbsp;/&nbsp;{kicker}
+    </span>
+    <span class="h-px flex-1 bg-current opacity-15" aria-hidden="true"></span>
+  </p>
+  <Heading as="h2" size="hero" class="uppercase">
+    {title1}<br />
+    <em class="text-accent-text not-italic">{title2}.</em>
+  </Heading>
+</div>

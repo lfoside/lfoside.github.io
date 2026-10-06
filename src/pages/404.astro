@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Heading from '../components/Heading.astro';
+import Button from '../components/Button.astro';
+---
+
+<Layout
+  title="Страница не найдена — ТокаркаПРО"
+  description="Запрошенная страница не найдена."
+  noindex
+>
+  <section class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-24 text-center">
+    <Heading as="h1" size="hero">404 — страница не найдена</Heading>
+    <p class="max-w-md text-muted">
+      Возможно, страница была перемещена или удалена. Начните с главной.
+    </p>
+    <div class="mt-4">
+      <Button href="/">На главную</Button>
+    </div>
+  </section>
+</Layout>

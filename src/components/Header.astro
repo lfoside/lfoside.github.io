@@ -1,0 +1,165 @@
+---
+/**
+ * Верхнее меню: логотип, навигация по секциям, заметные телефон/email,
+ * бренд-иконки мессенджеров (те же квадратные SVG, что в футере, 28px).
+ *
+ * Мобильная версия: телефон всегда виден в шапке (звонок в тап),
+ * остальное — в drawer-меню на CSS-бургере (checkbox + peer, 0 JS для
+ * открытия). Одна строка скрипта закрывает drawer при выборе пункта,
+ * иначе якорь скроллит под открытым меню.
+ */
+import { phone, email, messengers, sectionNav } from '../data/site';
+---
+
+<header class="sticky top-0 z-50 border-b border-paper/10 bg-ink/95 text-paper backdrop-blur-sm">
+  <div class="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <a href="/" class="font-display text-lg font-bold tracking-[-0.02em] whitespace-nowrap sm:text-xl">
+      Токарка<span class="text-accent-text">ПРО</span>
+    </a>
+
+    <!-- Десктоп: навигация -->
+    <nav aria-label="Разделы сайта" class="hidden lg:block">
+      <ul class="flex items-center gap-7 text-sm font-medium">
+        {
+          sectionNav.map((item) => (
+            <li>
+              {/* py/-my одинаковые: зона нажатия вырастает до 45px, не трогая
+                  высоту строки шапки (иначе поедет весь первый экран) */}
+              <a
+                href={item.href}
+                class="-my-2.5 py-2.5 transition-colors duration-300 hover:text-accent-text"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Десктоп: телефон + email + мессенджеры -->
+    <div class="hidden items-center gap-5 lg:flex">
+      <!-- flex-колонка, а не блочная: у блочных детей -my схлопывались с
+           отступом родителя и шапка незаметно вырастала на 4px -->
+      <div class="flex flex-col items-end text-right">
+        <!-- py/-my: зоны нажатия телефона и почты дотянуты до 24px (порог AA
+            для нетекстовых целей) без роста шапки — выше поедет первый экран -->
+        <a
+          href={phone.href}
+          class="-my-1 block py-1 font-display text-lg leading-tight font-semibold tracking-[-0.02em] transition-colors duration-300 hover:text-accent-2"
+        >
+          {phone.label}
+        </a>
+        <a href={email.href} class="-my-1 block py-1 text-xs transition-colors duration-300 hover:text-accent-text">
+          {email.label}
+        </a>
+      </div>
+      <ul class="flex items-center gap-2">
+        {
+          messengers.map((m) => (
+            <li>
+              <a
+                href={m.href}
+                target="_blank"
+                rel="noopener"
+                aria-label={`Написать в ${m.name}`}
+                title={m.name}
+                class="block transition-transform duration-300 ease-in-out hover:-translate-y-0.5"
+              >
+                <img src={m.icon} alt="" width="44" height="44" class="size-7" loading="lazy" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <!-- Мобилка: телефон + бургер -->
+    <div class="flex items-center gap-3 lg:hidden">
+      <a
+        href={phone.href}
+        class="inline-flex min-h-11 items-center font-display text-sm leading-none font-semibold tracking-[-0.02em] transition-colors duration-300 hover:text-accent-2 sm:text-base"
+      >
+        {phone.label}
+      </a>
+
+      <!-- У чекбокса обязательное имя: подпись — только иконки без текста,
+           без aria-label скринридер объявляет «флажок» непонятно о чём.
+           Цельная кнопка-бургер 44px вместо 40. -->
+      <input id="nav-toggle" type="checkbox" class="peer sr-only" aria-label="Меню разделы сайта" />
+
+      <label
+        for="nav-toggle"
+        class="grid size-11 shrink-0 cursor-pointer place-items-center border border-paper/20 transition-colors duration-300 peer-checked:border-accent-text peer-focus-visible:border-accent-text peer-checked:[&_.i-burger]:hidden peer-checked:[&_.i-close]:block"
+      >
+        <!-- бургер / крестик: переключаются состоянием чекбокса (label — сосед input, иконки — его потомки) -->
+        <svg viewBox="0 0 24 24" class="i-burger size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+        <svg viewBox="0 0 24 24" class="i-close hidden size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      </label>
+
+      <!-- затемнение: тап мимо меню закрывает его -->
+      <label for="nav-toggle" class="fixed inset-0 z-40 hidden cursor-default peer-checked:block" aria-hidden="true"></label>
+
+      <!-- drawer -->
+      <div class="absolute inset-x-0 top-full hidden border-b border-paper/10 bg-ink p-6 shadow-2xl shadow-ink peer-checked:block">
+        <nav aria-label="Разделы сайта (мобильное меню)">
+          <ul class="border-t border-paper/10">
+            {
+              sectionNav.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    data-nav-close
+                    class="block border-b border-paper/10 py-3.5 text-lg font-medium transition-colors duration-300 hover:text-accent-text"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <a
+          href={email.href}
+          data-nav-close
+          class="mt-5 inline-block py-2.5 text-sm transition-colors duration-300 hover:text-accent-text"
+        >
+          {email.label}
+        </a>
+        <ul class="mt-5 flex items-center gap-3">
+          {
+            messengers.map((m) => (
+              <li>
+                <a
+                  href={m.href}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`Написать в ${m.name}`}
+                  title={m.name}
+                  class="block"
+                >
+                  <img src={m.icon} alt="" width="44" height="44" class="size-9" loading="lazy" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script data-astro-rerun>
+  // Закрыть drawer после выбора пункта — иначе меню останется висеть
+  // поверх отскролленной к якорю секции.
+  document.querySelectorAll('[data-nav-close]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const toggle = document.getElementById('nav-toggle');
+      if (toggle instanceof HTMLInputElement) toggle.checked = false;
+    }),
+  );
+</script>

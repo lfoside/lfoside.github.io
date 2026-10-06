@@ -1,0 +1,102 @@
+---
+/**
+ * Секция «О компании» — композиция по макету пользователя (скриншот 05.10):
+ * лид справа от заголовка; ниже — две колонки: «наши услуги» (нумерованные
+ * hairline-строки) и блок с вертикальной линией (материалы: прямоугольные
+ * чипы + стоимость + акцентная цитата).
+ * Заголовок — общий для всех секций стиль SectionHeading (маркер + CAPS/em).
+ */
+import Heading from './Heading.astro';
+import SectionHeading from './SectionHeading.astro';
+
+const lead =
+  'Предлагаем полный цикл услуг по механической обработке металла на современном оборудовании с ЧПУ. Работаем с единичными деталями, прототипами и серийными партиями.';
+
+const services = [
+  { n: '01', t: 'Токарные работы', href: '#srv-01' },
+  { n: '02', t: 'Фрезерные работы', href: '#srv-02' },
+  { n: '03', t: 'Сварочные работы', href: '#srv-03' },
+  { n: '04', t: 'Слесарные работы', href: '#srv-04' },
+];
+
+const materials = [
+  'сталь', 'нержавейка', 'алюминий', 'латунь', 'бронза', 'титан', 'спецсплавы', 'пластик',
+];
+---
+
+<section id="about" class="tone-light bg-paper text-ink">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28" data-reveal>
+    <!-- Верх: заголовок + лид -->
+    <div class="grid gap-8 border-b border-ink/15 pb-14 lg:grid-cols-[0.45fr_0.55fr] lg:gap-16">
+      <SectionHeading num="02" kicker="О нас" title1="О нашей" title2="компании" tight />
+      <p class="max-w-xl self-end text-lg leading-relaxed sm:text-xl">
+        {lead}
+      </p>
+    </div>
+
+    <!-- Низ: услуги | материалы + стоимость -->
+    <div class="grid gap-12 pt-14 lg:grid-cols-2 lg:gap-0">
+      <nav aria-label="Услуги компании" class="lg:pr-16">
+        <Heading as="h3" size="sm" class="flex items-center gap-2.5 uppercase tracking-[0.22em] text-ink">
+          <span class="size-2 shrink-0 bg-accent" aria-hidden="true"></span>
+          наши услуги
+        </Heading>
+
+        <ul class="mt-6">
+          {
+            services.map((s, i) => (
+              <li
+                class:list={[
+                  'group',
+                  i < services.length - 1 && 'border-b border-ink/15',
+                ]}
+              >
+                <a
+                  href={s.href}
+                  class="flex items-center gap-6 py-4 transition-colors duration-300 hover:text-accent-text"
+                >
+                  <span class="font-display text-sm font-semibold text-ink/70 transition-colors duration-300 group-hover:text-accent-text">
+                    {s.n}
+                  </span>
+                  <span class="text-lg">{s.t}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="lg:border-l lg:border-ink/15 lg:pl-16">
+        <Heading as="h3" size="sm" class="flex items-center gap-2.5 uppercase tracking-[0.22em] text-ink">
+          <span class="size-2 shrink-0 bg-accent" aria-hidden="true"></span>
+          материалы
+        </Heading>
+        <p class="mt-5 max-w-xl text-[15px] leading-relaxed text-ink/70">
+          Выполняем обработку широкого спектра материалов — основных металлов и их сплавов,
+          специальных сплавов и пластиков:
+        </p>
+        <ul class="mt-6 flex flex-wrap gap-2.5">
+          {
+            materials.map((m) => (
+              <li class="border border-ink/25 px-3.5 py-1.5 text-sm text-ink/80 transition-colors duration-300 hover:border-accent-text hover:text-accent-text">
+                {m}
+              </li>
+            ))
+          }
+        </ul>
+
+        <Heading as="h3" size="sm" class="mt-12 flex items-center gap-2.5 uppercase tracking-[0.22em] text-ink">
+          <span class="size-2 shrink-0 bg-accent" aria-hidden="true"></span>
+          стоимость
+        </Heading>
+        <p class="mt-5 max-w-xl text-[15px] leading-relaxed text-ink/70">
+          Расчёт стоимости изготовления детали производится по чертежам заказчика —
+          индивидуально, в зависимости от сложности и объёма заказа.
+        </p>
+        <p class="mt-6 border-l-2 border-accent pl-4 text-[15px] font-medium text-accent-text">
+          Долгосрочное сотрудничество — в приоритете.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

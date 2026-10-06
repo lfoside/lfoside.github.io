@@ -1,0 +1,41 @@
+---
+/**
+ * Секция «Галерея продукции»: сетка 1/2/3 из Content Collections.
+ * Механика карточек — base44-референс, палитра/шрифты — наша дизайн-система.
+ */
+import { getCollection } from 'astro:content';
+import PhotoCard from './PhotoCard.astro';
+import SectionHeading from './SectionHeading.astro';
+
+const photos = (await getCollection('photos')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<section id="gallery" class="bg-ink text-paper">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+    <div data-reveal>
+      <SectionHeading num="05" kicker="Изделия" title1="Галерея" title2="работ" />
+      <p class="-mt-10 mb-12 max-w-2xl text-base leading-relaxed text-paper/60 sm:-mt-12">
+        Реальные детали, изготовленные в нашем цехе — с техническими характеристиками и сроками.
+      </p>
+    </div>
+
+    {
+      photos.length === 0 ? (
+        <p class="text-muted">
+          Пока пусто: добавьте .md-файл в <code>src/content/photos/</code>.
+        </p>
+      ) : (
+        <ul class="grid list-none grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {photos.map((photo, index) => (
+            <li>
+              {/* priority для первого ряда — LCP грузится сразу, остальное lazy */}
+              <PhotoCard photo={photo} priority={index < 3} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</section>

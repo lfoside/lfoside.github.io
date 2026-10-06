@@ -1,0 +1,84 @@
+---
+/**
+ * Футер «ТокаркаПРО» — контакты + юридический блок для РФ:
+ *  - телефон/email крупно и кликабельно (tel:/mailto:);
+ *  - навигация по секциям;
+ *  - адрес цеха (сейчас плейсхолдер в data/site.ts) — без него «самовывоз»
+ *    в шаге 04 некуда привести;
+ *  - нижняя строка: реквизиты (ИНН/ОГРН — плейсхолдеры, заполнить до запуска)
+ *    и ссылка на политику конфиденциальности (152-ФЗ).
+ *
+ * Иконок мессенджеров здесь больше нет: они переехали в полосу 07, где являются
+ * действием. Два одинаковых ряда иконок в 300 px друг от друга — это тот
+ * дубликат справочника, из-за которого полоса и переделывалась.
+ */
+import { phone, email, address, sectionNav as nav } from '../data/site';
+---
+
+<footer id="contacts" class="border-t border-paper/10 bg-ink text-paper">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr] lg:gap-16">
+      <!-- Бренд -->
+      <div>
+        <p class="font-display text-xl font-bold tracking-[-0.02em]">
+          Токарка<span class="text-accent-text">ПРО</span>
+        </p>
+        <p class="mt-4 max-w-xs text-sm leading-relaxed text-muted">
+          Металлообработка на заказ на ЧПУ: токарные, фрезерные, сварочные и слесарные работы.
+          Москва и область, от 1 детали до серии.
+        </p>
+      </div>
+
+      <!-- Контакты -->
+      <div>
+        <p class="font-display text-[10px] font-semibold tracking-[0.2em] text-accent-text uppercase">Контакты</p>
+        <a
+          href={phone.href}
+          class="mt-5 block font-display text-2xl font-semibold tracking-[-0.02em] transition-colors duration-300 hover:text-accent-2 sm:text-[1.75rem]"
+        >
+          {phone.label}
+        </a>
+        <p class="mt-1.5 text-sm text-muted">Пн–Пт 9:00–19:00</p>
+        <a
+          href={email.href}
+          class="mt-6 inline-block text-lg font-medium transition-colors duration-300 hover:text-accent-2"
+        >
+          {email.label}
+        </a>
+
+        <!-- Адрес: шаг 04 обещает самовывоз, без адреса ветка мёртвая -->
+        <p class="mt-6 text-sm leading-relaxed text-muted">
+          {address.label}
+          <span class="block">{address.note}</span>
+        </p>
+      </div>
+
+      <!-- Навигация -->
+      <nav aria-label="Разделы сайта">
+        <p class="font-display text-[10px] font-semibold tracking-[0.2em] text-accent-text uppercase">Разделы</p>
+        <ul class="mt-5 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-1">
+          {
+            nav.map((item) => (
+              <li>
+                <!-- py-3, а не py-1.5: ссылка навигации должна быть не меньше
+                     44px по высоте — на телефоне в неё попадают пальцем -->
+                <a href={item.href} class="py-3 inline-block text-sm transition-colors duration-300 hover:text-accent-text">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Юридическая строка -->
+    <div class="mt-14 flex flex-col gap-3 border-t border-paper/10 pt-6 text-xs leading-relaxed text-muted sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <!-- TODO до запуска: подставить реальные наименование и реквизиты (ст. 9 ЗоЗПП) -->
+      <p>© 2026 ТокаркаПРО · ИП «ФИО» · ИНН 000000000000 · ОГРНИП 00000000000000</p>
+      <a href="/privacy/" class="inline-block py-2.5 underline decoration-paper/30 underline-offset-4 transition-colors duration-300 hover:text-accent-text hover:decoration-accent-text">
+        Политика конфиденциальности
+      </a>
+    </div>
+  </div>
+</footer>

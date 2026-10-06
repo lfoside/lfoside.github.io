@@ -1,0 +1,150 @@
+---
+import { ClientRouter, fade } from 'astro:transitions';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/fonts.css';
+import '../styles/global.css';
+
+interface Props {
+  /** <title> страницы: главное ключевое слово + бренд, до ~60 символов */
+  title: string;
+  /** meta description, до ~160 символов */
+  description: string;
+  /** Картинка превью для соцсетей; по умолчанию брендовая заглушка */
+  ogImage?: string;
+  /** true для технических страниц, не участвующих в индексации */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogImage = '/og-default.png',
+  noindex = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+const ogURL = new URL(ogImage, Astro.site ?? Astro.url.origin);
+
+// Витрина на GitHub Pages собирается в Actions — помечаем всю её noindex, чтобы
+// черновик с плейсхолдерами (реквизиты, адрес) не проскочил в поиск. Прод-сборка
+// по FTP идёт вне CI и уважает только явный props.noindex (напр. страницу privacy).
+const forceNoindex = process.env.GITHUB_ACTIONS === 'true';
+const robots = noindex || forceNoindex;
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+      Единственная команда: пометить, что JS жив. Правило скрытия [data-reveal]
+      в global.css привязано к html.js, поэтому без JS (или с недокачанным с FTP
+      модулем) контент остаётся видимым, а не уезжает в opacity: 0.
+      Инлайн, а не <script>-модуль: должен отработать до первой отрисовки.
+    -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    {robots && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- OpenGraph: превью ссылки в Telegram/WhatsApp/соцсетях -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogURL} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogURL} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!--
+      Шрифты дизайн-системы раздаются локально (src/styles/fonts.css,
+      woff2-подмножества cyrillic+latin в public/fonts).
+      Ранее: <link> на fonts.googleapis.com — render-blocking CSS чужого
+      хоста; замер под 4G: FCP 1112 мс с ним против 724 мс без него, CLS
+      0,0366 против 0, а DOMContentLoaded гулял от 271 до 3370 мс в
+      зависимости от ответа Google. Плюс историческая справка: стоявший тут
+      когда-то Space Grotesk кириллицы не имел вовсе, и весь русский текст
+      молча рендерился фолбэком — поэтому проверка кириллицы в подмножестве
+      обязательна (списки диапазонов в fonts.css).
+
+      PRELOAD ЗДЕСЬ НЕТ — и это не забывчивость, а замер. Под 4G-троттлом
+      (200 КБ/с, 150 мс RTT, CPU×4) две ссылки preload/as=font на cyrillic-
+      подмножества отодвинули первую отрисовку с ~670 мс до ~1760 мс: шрифт
+      приходил раньше, но текст до него не отрисовывался. Без preload FCP
+      ~700 мс, LCP ~1500 мс, CLS 0,033 — то есть медленнее приезжает сам
+      шрифт, но быстрее и раньше по строке едет всё остальное. Если будете
+      «оптимизировать обратно» — сначала повторите замер (verify_vitals.py),
+      а не верьте комментарию.
+    -->
+
+    <!--
+      Встроенные переходы между страницами (мягкий fade, без тяжёлых библиотек).
+      С ClientRouter в Astro 7 префетч всех внутренних ссылок включён автоматически.
+    -->
+    <ClientRouter transition:animate={fade({ duration: '0.25s' })} />
+
+    <!--
+      Layout inversion: страницы могут точечно инжектировать свои мета-теги,
+      canonical/noindex или Schema.org-микроразметку прямо из своего шаблона:
+      <template slot="head"> ... </template>
+    -->
+    <slot name="head" />
+  </head>
+
+  <body class="flex min-h-dvh flex-col bg-ink font-sans text-paper antialiased">
+    <!-- Переход на основной контент для клавиатуры (A11y) -->
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-ink"
+    >
+      Перейти к содержимому
+    </a>
+
+    <Header />
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <!--
+      Появление секций при скролле: ~15 строк Vanilla JS на IntersectionObserver,
+      ничего не подключает, только добавляет .is-visible (стили в global.css).
+      data-astro-rerun — чтобы скрипт повторно отрабатывал после ClientRouter-навигации.
+    -->
+    <script data-astro-rerun>
+      const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const elements = document.querySelectorAll('[data-reveal]');
+
+      if (prefersReduced || !('IntersectionObserver' in window)) {
+        elements.forEach((el) => el.classList.add('is-visible'));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.15, rootMargin: '0px 0px -10% 0px' },
+        );
+        elements.forEach((el) => observer.observe(el));
+      }
+    </script>
+  </body>
+</html>
